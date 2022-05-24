@@ -10,7 +10,7 @@ from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
 from slither.core.source_mapping.source_mapping import SourceMapping
-from slither.utils.using_for import USING_FOR, merge_using_for
+from slither.utils.using_for import USING_FOR, USING_FOR_SRC, merge_using_for
 from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
@@ -38,6 +38,7 @@ if TYPE_CHECKING:
         StructureContract,
         FunctionContract,
         CustomErrorContract,
+        Structure,
     )
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.variables import Variable, StateVariable
@@ -85,6 +86,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         # The only str is "*"
         self._using_for: USING_FOR = {}
         self._using_for_complete: Optional[USING_FOR] = None
+        self._using_for_src: USING_FOR_SRC = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
@@ -345,6 +347,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 result = merge_using_for(result, uftl.using_for)
             self._using_for_complete = result
         return self._using_for_complete
+
+    @property
+    def using_for_src(self) -> USING_FOR_SRC:
+        return self._using_for_src
 
     # endregion
     ###################################################################################

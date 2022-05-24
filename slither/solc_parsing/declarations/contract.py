@@ -8,6 +8,7 @@ from slither.core.declarations import (
     EnumContract,
     StructureContract,
     Function,
+    Structure,
 )
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
@@ -619,11 +620,19 @@ class ContractSolc(CallerContextExpression):
                         type_name = "*"
                     if type_name not in self._contract.using_for:
                         self._contract.using_for[type_name] = []
+                        self._contract.using_for_src[type_name] = []
 
                     if "libraryName" in using_for:
-                        self._contract.using_for[type_name].append(
-                            parse_type(using_for["libraryName"], self)
-                        )
+                        lib_name: USING_FOR_KEY = parse_type(using_for["libraryName"], self)
+
+                        # This is to populate the source location of using_for construct
+                        # We reuse the Structure class to store the source location instead
+                        # of creating a new class `UsingFor` for simplicity
+                        uf = Structure(self._contract.compilation_unit)
+                        uf.set_offset(using_for["src"], self._contract.compilation_unit)
+                        uf.canonical_name = uf.name = f"using {lib_name} for {type_name} in {self._contract}"
+                        self._contract.using_for[type_name].append(lib_name)
+                        self._contract.using_for_src[type_name].append((lib_name, uf))
                     else:
                         # We have a list of functions. A function can be topLevel or a library function
                         self._analyze_function_list(using_for["functionList"], type_name)
