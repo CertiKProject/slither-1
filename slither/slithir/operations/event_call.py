@@ -4,14 +4,17 @@ from slither.slithir.variables.constant import Constant
 
 
 class EventCall(Call):
-    def __init__(self, name: Union[str, Constant]) -> None:
+    def __init__(self, destination):
         super().__init__()
-        self._name = name
-        # todo add instance of the Event
+        self._destination = destination
+
+    @property
+    def destination(self):
+        return self._destination
 
     @property
     def name(self) -> Union[str, Constant]:
-        return self._name
+        return self.destination.name
 
     @property
     def read(self) -> List[Any]:

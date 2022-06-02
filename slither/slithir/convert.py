@@ -914,6 +914,11 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 raise SlithIRError(f"Not handling {type(ir)} during type propagation")
     return None
 
+def resolve_event(event_name, event_collection):
+    for event in event_collection.events:
+        if event.name == event_name:
+            return event
+    return None
 
 # pylint: disable=too-many-locals
 def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, Nop]:
@@ -941,8 +946,9 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                 internalcall.set_expression(ins.expression)
                 internalcall.call_id = ins.call_id
                 return internalcall
-            if str(ins.ori.variable_right) in [f.name for f in contract.events]:
-                eventcall = EventCall(ins.ori.variable_right)
+            event_sym = resolve_event(str(ins.ori.variable_right), contract)
+            if event_sym is not None:
+                eventcall = EventCall(event_sym)
                 eventcall.set_expression(ins.expression)
                 eventcall.call_id = ins.call_id
                 return eventcall
@@ -958,8 +964,9 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
             # lib L { event E()}
             # ...
             # emit L.E();
-            if str(ins.ori.variable_right) in [f.name for f in ins.ori.variable_left.events]:
-                eventcall = EventCall(ins.ori.variable_right)
+            event_sym = resolve_event(str(ins.ori.variable_right), ins.ori.variable_left)
+            if event_sym is not None:
+                eventcall = EventCall(event_sym)
                 eventcall.set_expression(ins.expression)
                 eventcall.call_id = ins.call_id
                 return eventcall
@@ -1186,7 +1193,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         return op
 
     if isinstance(ins.called, Event):
-        e = EventCall(ins.called.name)
+        e = EventCall(ins.called)
         e.set_expression(ins.expression)
         return e
 
