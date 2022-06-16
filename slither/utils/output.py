@@ -382,7 +382,7 @@ def _create_parent_element(
     return None
 
 
-SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node, CustomError]
 AllSupportedOutput = Union[str, SupportedOutput]
 
 
@@ -446,6 +446,8 @@ class Output:
             self.add_pragma(add, additional_fields=additional_fields)
         elif isinstance(add, Node):
             self.add_node(add, additional_fields=additional_fields)
+        elif isinstance(add, CustomError):
+            self.add_other(add.name, add.source_mapping, add.compilation_unit, additional_fields=additional_fields)
         else:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
