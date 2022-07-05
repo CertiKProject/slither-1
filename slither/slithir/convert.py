@@ -914,10 +914,16 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 raise SlithIRError(f"Not handling {type(ir)} during type propagation")
     return None
 
-def resolve_event(event_name, event_collection):
-    for event in event_collection.events:
+def resolve_event(event_name : str, c : Contract) -> Optional["Event"]:
+    for event in c.events:
         if event.name == event_name:
             return event
+    return None
+
+def resolve_error(error_name : str, c : Contract) -> Optional["CustomError"]:
+    for ce in c.custom_errors:
+        if ce.name == error_name:
+            return ce
     return None
 
 # pylint: disable=too-many-locals
@@ -995,6 +1001,9 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                 ins.type_call,
                 names=ins.names,
             )
+            custom_error_sym = resolve_error(str(ins.ori.variable_right), ins.ori.variable_left)
+            if custom_error_sym is not None:
+                libcall.function = custom_error_sym
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
             return libcall
