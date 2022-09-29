@@ -249,6 +249,9 @@ def _convert_to_description(d: str) -> str:
     if hasattr(d, "name"):
         return f"{d.name} ({d.source_mapping})"
 
+    if isinstance(d, Expression):
+        return f"{d}({d.source_mapping_str})"
+
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
@@ -269,6 +272,9 @@ def _convert_to_markdown(d: str, markdown_root: str) -> str:
 
     if hasattr(d, "name"):
         return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
+
+    if isinstance(d, Expression):
+        return f"{d}({d.source_mapping_to_markdown(markdown_root)})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -298,6 +304,9 @@ def _convert_to_id(d: str) -> str:
 
     if hasattr(d, "name"):
         return f"{d.name}"
+
+    if isinstance(d, Expression):
+        return f"{d}({d.source_mapping_str})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
