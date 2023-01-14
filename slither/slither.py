@@ -137,9 +137,12 @@ class Slither(
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
+
         for compilation_unit in crytic_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
+            certik_compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
+            self._certik_compilation_units.append(certik_compilation_unit_slither)
 
             if compilation_unit_slither.is_vyper:
                 vyper_parser = VyperCompilationUnit(compilation_unit_slither)
@@ -150,10 +153,13 @@ class Slither(
             else:
                 # Solidity specific
                 assert compilation_unit_slither.is_solidity
-                sol_parser = SlitherCompilationUnitSolc(compilation_unit_slither)
+                sol_parser = SlitherCompilationUnitSolc(compilation_unit_slither, generates_certik_ir = False)
                 self._parsers.append(sol_parser)
+                certik_parser = SlitherCompilationUnitSolc(certik_compilation_unit_slither, generates_certik_ir = True)
+                self._parsers.append(certik_parser)
                 for path, ast in compilation_unit.asts.items():
                     sol_parser.parse_top_level_items(ast, path)
+                    certik_parser.parse_top_level_items(ast, path)
                     self.add_source_code(path)
 
                 for contract in sol_parser._underlying_contract_to_parser:
@@ -168,6 +174,7 @@ class Slither(
                     sol_parser._compilation_unit.contracts.append(contract)
 
                 _update_file_scopes(sol_parser)
+                _update_file_scopes(certik_parser)
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
@@ -248,9 +255,16 @@ class Slither(
         """
         _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
-        for compilation_unit in self.compilation_units:
-            instance = detector_class(compilation_unit, self, logger_detector)
-            self._detectors.append(instance)
+        if detector_class.uses_certik_ir:
+            for compilation_unit in self.certik_compilation_units:
+                instance = detector_class(compilation_unit, self, logger_detector)
+                self._detectors.append(instance)
+        else:
+            for compilation_unit in self.compilation_units:
+                instance = detector_class(compilation_unit, self, logger_detector)
+                self._detectors.append(instance)
+
+
 
     def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
         """
