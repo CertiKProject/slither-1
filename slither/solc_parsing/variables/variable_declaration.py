@@ -32,6 +32,7 @@ from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.elementary_type import Byte, Int, Uint
+from slither.solc_parsing.default_values import get_default_value
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
@@ -279,4 +280,4 @@ class VariableDeclarationSolc:
             and self._variable.location in ["memory", "default"]
             and caller_context.slither_parser.generates_certik_ir
         ):
-            self._variable.expression = self._get_init_value(self._variable.type)
+            self._variable.expression = get_default_value(self._variable.type)
