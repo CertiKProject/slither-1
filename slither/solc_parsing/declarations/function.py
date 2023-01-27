@@ -399,7 +399,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_if(self, if_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
-        falseStatement = None
+        false_body = None
 
         if self.is_compact_ast:
             condition = if_statement["condition"]
@@ -412,11 +412,9 @@ class FunctionSolc(CallerContextExpression):
             trueStatement = self._parse_statement(
                 if_statement["trueBody"], condition_node, true_scope
             )
+
             if "falseBody" in if_statement and if_statement["falseBody"]:
-                false_scope = Scope(scope.is_checked, False, scope)
-                falseStatement = self._parse_statement(
-                    if_statement["falseBody"], condition_node, false_scope
-                )
+                false_body = if_statement["falseBody"]
         else:
             children = if_statement[self.get_children("children")]
             condition = children[0]
@@ -427,17 +425,23 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(node, condition_node)
             true_scope = Scope(scope.is_checked, False, scope)
             trueStatement = self._parse_statement(children[1], condition_node, true_scope)
+
             if len(children) == 3:
-                false_scope = Scope(scope.is_checked, False, scope)
-                falseStatement = self._parse_statement(children[2], condition_node, false_scope)
+                false_body = children[2]
 
         endIf_node = self._new_node(NodeType.ENDIF, if_statement["src"], scope)
         link_underlying_nodes(trueStatement, endIf_node)
 
-        if falseStatement:
+        if false_body:
+            false_scope = Scope(scope.is_checked, False, scope)
+            false_scope = Scope(
+                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
+            )
+            falseStatement = self._parse_statement(false_body, condition_node, false_scope)
             link_underlying_nodes(falseStatement, endIf_node)
         else:
             link_underlying_nodes(condition_node, endIf_node)
+
         return endIf_node
 
     def _parse_while(self, whilte_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
