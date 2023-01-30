@@ -700,7 +700,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:
         all_expressions = [get(e) if e else None for e in expression.expressions]
-        if len(all_expressions) == 1:
+        if expression.is_inline_array:
+            temp_var = TemporaryVariable(self._node)
+            init_arr = InitArray(expressions, temp_var)
+            self._result.append(init_arr)
+            # Use the new temporary variable in place of the array.
+            val = temp_var
+        elif len(all_expressions) == 1:
             val = all_expressions[0]
         else:
             val = all_expressions
