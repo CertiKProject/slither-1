@@ -139,9 +139,9 @@ class Slither(
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
 
         for compilation_unit in crytic_compile.compilation_units.values():
-            compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
+            compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit, generates_certik_ir = False)
             self._compilation_units.append(compilation_unit_slither)
-            certik_compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
+            certik_compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit, generates_certik_ir = True)
             self._certik_compilation_units.append(certik_compilation_unit_slither)
 
             if compilation_unit_slither.is_vyper:
