@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class TemporaryVariable(Variable):
-    def __init__(self, node: "Node", index: Optional[int] = None) -> None:
+    def __init__(self, node: "Node", index: Optional[int] = None, location: Optional[str] = None) -> None:
         super().__init__()
         if index is None:
             self._index = node.compilation_unit.counter_slithir_temporary
@@ -15,6 +15,11 @@ class TemporaryVariable(Variable):
         else:
             self._index = index
         self._node = node
+        self._location = location
+
+    @property
+    def location(self):
+        return self._location
 
     @property
     def node(self) -> "Node":
