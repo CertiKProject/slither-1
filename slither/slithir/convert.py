@@ -1062,6 +1062,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                     ins.lvalue,
                     "d",
                     names=ins.names,
+                    has_receiver_arg=True,
                 )
                 lib_call.set_expression(ins.expression)
                 lib_call.set_node(ins.node)
@@ -1562,6 +1563,7 @@ def look_for_library_or_top_level(
                 ir.lvalue,
                 ir.type_call,
                 names=ir.names,
+                has_receiver_arg=True,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
