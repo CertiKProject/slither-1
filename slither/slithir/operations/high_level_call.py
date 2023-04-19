@@ -29,12 +29,14 @@ class HighLevelCall(Call, OperationWithLValue):
         result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
         type_call: str,
         names: Optional[List[str]] = None,
+        has_receiver_arg: bool = False,
     ) -> None:
         """
         #### Parameters
         names -
             For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
             Otherwise, None.
+        has_receiver_arg - True if the receiver expression is used as the first argument
         """
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
@@ -44,6 +46,7 @@ class HighLevelCall(Call, OperationWithLValue):
         self._destination: Union[Variable, SolidityVariable, Contract] = destination  # type: ignore
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
+        self._has_receiver_arg = has_receiver_arg
         self._type_call = type_call
         self._lvalue = result
         self._callid = None  # only used if gas/value != 0
@@ -117,6 +120,10 @@ class HighLevelCall(Call, OperationWithLValue):
     @property
     def type_call(self) -> str:
         return self._type_call
+
+    @property
+    def has_receiver_arg(self) -> bool:
+        return self._has_receiver_arg
 
     ###################################################################################
     ###################################################################################
