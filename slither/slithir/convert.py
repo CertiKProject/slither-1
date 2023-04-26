@@ -72,6 +72,7 @@ from slither.slithir.operations import (
     Nop,
     Operation,
 )
+from slither.slithir.operations.push import Push
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
