@@ -872,7 +872,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                                 if v:
                                     ir.lvalue.set_type(v.type)
             elif isinstance(ir, NewArray):
-                ir.lvalue.set_type(ir.array_type)
+                ir.lvalue.set_type(ArrayType(ir.array_type, None))
             elif isinstance(ir, NewContract):
                 ir.lvalue.set_type(ir.contract_name)
             elif isinstance(ir, NewElementaryType):
