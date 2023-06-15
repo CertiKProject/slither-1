@@ -12,7 +12,7 @@ from .summary.slithir_ssa import PrinterSlithIRSSA
 from .summary.human_summary import PrinterHumanSummary
 from .summary.ck import CK
 from .summary.halstead import Halstead
-from .functions.cfg import CFG
+from .functions.cfg import CFG, PrinterCertiKCFG
 from .summary.function_ids import FunctionIds
 from .summary.variable_order import VariableOrder
 from .summary.data_depenency import DataDependency
