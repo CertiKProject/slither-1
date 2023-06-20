@@ -1207,7 +1207,9 @@ class FunctionSolc(CallerContextExpression):
                     continue
                 if isinstance(ret.type, FunctionSolidityType):
                     continue
+                # Implicit initialization of returns variables
                 assign_node = self._new_node(NodeType.EXPRESSION, cfg["src"], self._function)
+                assign_node.underlying_node.source_mapping = None
                 assign_node.underlying_node.add_expression(
                     AssignmentOperation(
                         Identifier(ret),
@@ -1233,7 +1235,9 @@ class FunctionSolc(CallerContextExpression):
             self._remove_alone_endif()
 
         if self.slither_parser.generates_certik_ir and node.underlying_node.type != NodeType.RETURN:
+            # Implicit return statements
             return_node = self._new_node(NodeType.RETURN, cfg["src"], self._function)
+            return_node.underlying_node.source_mapping = None
             return_node.underlying_node.add_expression(
                 TupleExpression([Identifier(ret) for ret in self._function.returns])
             )
