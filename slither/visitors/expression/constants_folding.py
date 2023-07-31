@@ -14,6 +14,7 @@ from slither.core.expressions import (
     TypeConversion,
     CallExpression,
 )
+from slither.core.expressions.member_access import MemberAccess
 from slither.core.variables import Variable
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -77,7 +78,10 @@ class ConstantFolding(ExpressionVisitor):
                 # Everything outside of literal
                 if isinstance(
                     expr,
-                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+                    (
+                        BinaryOperation, UnaryOperation, Identifier, TupleExpression,
+                        TypeConversion, CallExpression, MemberAccess
+                    ),
                 ):
                     cf = ConstantFolding(expr, self._type)
                     expr = cf.result()
@@ -282,6 +286,8 @@ class ConstantFolding(ExpressionVisitor):
             value = int.from_bytes(expr.value, "big")
         elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
             value = int.to_bytes(expr.value, 32, "big")
+        elif str(expression.type).startswith("byte") and isinstance(expr.value, str):
+            value = expr.converted_value
         else:
             value = convert_string_to_fraction(expr.converted_value)
         set_val(expression, value)
