@@ -623,6 +623,15 @@ class ExpressionToSlithIR(ExpressionVisitor):
             and expression.member_name in expr.type.type.elems
         ):
             val_ref.set_type(expr.type.type.elems[expression.member_name].type)
+
+        if isinstance(expr, Contract):
+            if expression.member_name in expr.structures_as_dict:
+                type = UserDefinedType(expr.structures_as_dict[expression.member_name])
+                val_ref.set_type(Typename(type))
+            if expression.member_name in expr.enums_as_dict:
+                type = UserDefinedType(expr.enums_as_dict[expression.member_name])
+                val_ref.set_type(Typename(type))
+
         member = Member(expr, Constant(expression.member_name), val_ref)
         member.set_expression(expression)
         self._result.append(member)
