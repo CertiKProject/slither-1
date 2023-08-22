@@ -18,7 +18,6 @@ from slither.detectors.abstract_detector import (
 )
 from slither.utils.output import Output
 
-
 def _is_correctly_used(type_: Type, library: Contract) -> bool:
     """
     Checks if a `using library for type_` statement is used correctly (that is, does library contain any function
@@ -181,7 +180,7 @@ class IncorrectUsingFor(AbstractDetector):
     library L {
         function f(bool) public pure {}
     }
-    
+
     using L for uint;
     ```
     Such a code will compile despite the fact that `L` has no function with `uint` as its first argument."""
@@ -200,6 +199,8 @@ class IncorrectUsingFor(AbstractDetector):
             ".\n",
         ]
         res = self.generate_result(info)
+        res.add(uf, { "lib" : str(library.name), "ty": str(type_) })
+
         results.append(res)
 
     def _detect(self) -> List[Output]:
