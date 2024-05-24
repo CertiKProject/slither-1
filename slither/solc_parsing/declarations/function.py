@@ -1428,7 +1428,6 @@ class FunctionSolc(CallerContextExpression):
             self._returnsNotParsed = returns[self.get_children("children")]
 
         ret_param_number = 0
-        for ret in returns:
         for ret in self._returnsNotParsed:
             assert ret[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(ret)
