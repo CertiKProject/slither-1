@@ -247,6 +247,7 @@ def _convert_to_description(d: str) -> str:
     if hasattr(d, "name"):
         return f"{d.name} ({d.source_mapping})"
 
+    return f"TODO {type(d)} ({d.source_mapping})"
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
@@ -268,6 +269,7 @@ def _convert_to_markdown(d: str, markdown_root: str) -> str:
     if hasattr(d, "name"):
         return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
 
+    return f"TODO {type(d)} ({d.source_mapping.to_markdown(markdown_root)})"
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
@@ -297,6 +299,7 @@ def _convert_to_id(d: str) -> str:
     if hasattr(d, "name"):
         return f"{d.name}"
 
+    return f"TODO {type(d)}"
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
@@ -446,7 +449,8 @@ class Output:
         elif isinstance(add, Node):
             self.add_node(add, additional_fields=additional_fields)
         else:
-            raise SlitherError(f"Impossible to add {type(add)} to the json")
+            logger.warning(f"Impossible to add {type(add)} to the json")
+            # raise SlitherError(f"Impossible to add {type(add)} to the json")
 
     @property
     def data(self) -> Dict:
